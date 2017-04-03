@@ -1,51 +1,31 @@
 長庚大學 大數據分析方法 作業三
 ================
 
-作業說明 （繳交時請直接刪除這個章節）
--------------------------------------
-
-作業目的：練習初級爬蟲，並將爬蟲結果整理成資料框data.frame
-
-依下列指示，完成網站內文分析：
-
--   爬取指定網站內容
-    -   學號結尾 0,4,8:[Ptt Tech\_Job 版](https://www.ptt.cc/bbs/Tech_Job/index.html)
-    -   學號結尾 1,5,9:[Ptt NBA 版](https://www.ptt.cc/bbs/NBA/index.html)
-    -   學號結尾 2,6:[Ptt LoL 版](https://www.ptt.cc/bbs/LoL/index.html)
-    -   學號結尾 3,7:[Ptt movie 版](https://www.ptt.cc/bbs/movie/index.html)
--   試著爬出**至少100篇**文章（`30pt`）的**標題**、**推文數**與**作者ID**（各`10pt`）
-    -   資料框欄位名稱：
-        -   **標題**：Title
-        -   **推文數**：PushNum
-        -   **作者ID**：Author
-    -   一頁只有20篇，該怎麼辦？
-        -   提示：使用for + rbind()將分批爬取出的資料結合
-        -   範例：dataframeAll&lt;-rbind(dataframe1,dataframe2)
-        -   參考：[6.6 資料組合](http://yijutseng.github.io/DataScienceRBook/manipulation.html#section-6.6)
--   將爬取出的資料輸出至Markdown報告中（`10pt`）
-    -   使用knitr::kable(資料框物件)整理輸出
--   用文字搭配程式碼解釋爬蟲結果
-    -   共爬出幾篇文章標題？（程式碼與文字解釋各`5pt`）
-        -   dim(), nrow(), str()皆可
-    -   哪個作者文章數最多？（程式碼與文字解釋各`5pt`）
-        -   table()
-    -   其他爬蟲結果解釋（`10pt`）
-        -   試著找出有趣的現象，不一定要用程式碼搭配解釋，也可只用文字
-
 網站資料爬取
 ------------
 
 ``` r
-#這是R Code Chunk
-library(rvest) ##第一次使用要先安裝 install.packages("rvest")
+library(rvest)
 ```
+
+    ## Warning: package 'rvest' was built under R version 3.3.3
 
     ## Loading required package: xml2
 
+    ## Warning: package 'xml2' was built under R version 3.3.3
+
 ``` r
-##read_html
-##html_nodes
-##html_text
+pttResult<-NULL
+for(n in 1:6){
+indexno = 5300-n
+url<-paste0("https://www.ptt.cc/bbs/movie/index",indexno,".html")
+pttContent<-read_html(url)
+post_title <- pttContent %>% html_nodes(".title") %>% html_text()
+post_pushNum<- pttContent %>% html_nodes(".nrec") %>% html_text()
+post_author<- pttContent %>% html_nodes(".author") %>% html_text()
+pttMovie<-data.frame(title=post_title,pushNum=post_pushNum,author=post_author)
+pttResult<-rbind(pttResult,pttMovie)
+}
 ```
 
 爬蟲結果呈現
@@ -53,175 +33,157 @@ library(rvest) ##第一次使用要先安裝 install.packages("rvest")
 
 ``` r
 #這是R Code Chunk
-knitr::kable(iris) ##請將iris取代為上個步驟中產生的爬蟲資料資料框
+knitr::kable(pttResult)
 ```
 
-|  Sepal.Length|  Sepal.Width|  Petal.Length|  Petal.Width| Species    |
-|-------------:|------------:|-------------:|------------:|:-----------|
-|           5.1|          3.5|           1.4|          0.2| setosa     |
-|           4.9|          3.0|           1.4|          0.2| setosa     |
-|           4.7|          3.2|           1.3|          0.2| setosa     |
-|           4.6|          3.1|           1.5|          0.2| setosa     |
-|           5.0|          3.6|           1.4|          0.2| setosa     |
-|           5.4|          3.9|           1.7|          0.4| setosa     |
-|           4.6|          3.4|           1.4|          0.3| setosa     |
-|           5.0|          3.4|           1.5|          0.2| setosa     |
-|           4.4|          2.9|           1.4|          0.2| setosa     |
-|           4.9|          3.1|           1.5|          0.1| setosa     |
-|           5.4|          3.7|           1.5|          0.2| setosa     |
-|           4.8|          3.4|           1.6|          0.2| setosa     |
-|           4.8|          3.0|           1.4|          0.1| setosa     |
-|           4.3|          3.0|           1.1|          0.1| setosa     |
-|           5.8|          4.0|           1.2|          0.2| setosa     |
-|           5.7|          4.4|           1.5|          0.4| setosa     |
-|           5.4|          3.9|           1.3|          0.4| setosa     |
-|           5.1|          3.5|           1.4|          0.3| setosa     |
-|           5.7|          3.8|           1.7|          0.3| setosa     |
-|           5.1|          3.8|           1.5|          0.3| setosa     |
-|           5.4|          3.4|           1.7|          0.2| setosa     |
-|           5.1|          3.7|           1.5|          0.4| setosa     |
-|           4.6|          3.6|           1.0|          0.2| setosa     |
-|           5.1|          3.3|           1.7|          0.5| setosa     |
-|           4.8|          3.4|           1.9|          0.2| setosa     |
-|           5.0|          3.0|           1.6|          0.2| setosa     |
-|           5.0|          3.4|           1.6|          0.4| setosa     |
-|           5.2|          3.5|           1.5|          0.2| setosa     |
-|           5.2|          3.4|           1.4|          0.2| setosa     |
-|           4.7|          3.2|           1.6|          0.2| setosa     |
-|           4.8|          3.1|           1.6|          0.2| setosa     |
-|           5.4|          3.4|           1.5|          0.4| setosa     |
-|           5.2|          4.1|           1.5|          0.1| setosa     |
-|           5.5|          4.2|           1.4|          0.2| setosa     |
-|           4.9|          3.1|           1.5|          0.2| setosa     |
-|           5.0|          3.2|           1.2|          0.2| setosa     |
-|           5.5|          3.5|           1.3|          0.2| setosa     |
-|           4.9|          3.6|           1.4|          0.1| setosa     |
-|           4.4|          3.0|           1.3|          0.2| setosa     |
-|           5.1|          3.4|           1.5|          0.2| setosa     |
-|           5.0|          3.5|           1.3|          0.3| setosa     |
-|           4.5|          2.3|           1.3|          0.3| setosa     |
-|           4.4|          3.2|           1.3|          0.2| setosa     |
-|           5.0|          3.5|           1.6|          0.6| setosa     |
-|           5.1|          3.8|           1.9|          0.4| setosa     |
-|           4.8|          3.0|           1.4|          0.3| setosa     |
-|           5.1|          3.8|           1.6|          0.2| setosa     |
-|           4.6|          3.2|           1.4|          0.2| setosa     |
-|           5.3|          3.7|           1.5|          0.2| setosa     |
-|           5.0|          3.3|           1.4|          0.2| setosa     |
-|           7.0|          3.2|           4.7|          1.4| versicolor |
-|           6.4|          3.2|           4.5|          1.5| versicolor |
-|           6.9|          3.1|           4.9|          1.5| versicolor |
-|           5.5|          2.3|           4.0|          1.3| versicolor |
-|           6.5|          2.8|           4.6|          1.5| versicolor |
-|           5.7|          2.8|           4.5|          1.3| versicolor |
-|           6.3|          3.3|           4.7|          1.6| versicolor |
-|           4.9|          2.4|           3.3|          1.0| versicolor |
-|           6.6|          2.9|           4.6|          1.3| versicolor |
-|           5.2|          2.7|           3.9|          1.4| versicolor |
-|           5.0|          2.0|           3.5|          1.0| versicolor |
-|           5.9|          3.0|           4.2|          1.5| versicolor |
-|           6.0|          2.2|           4.0|          1.0| versicolor |
-|           6.1|          2.9|           4.7|          1.4| versicolor |
-|           5.6|          2.9|           3.6|          1.3| versicolor |
-|           6.7|          3.1|           4.4|          1.4| versicolor |
-|           5.6|          3.0|           4.5|          1.5| versicolor |
-|           5.8|          2.7|           4.1|          1.0| versicolor |
-|           6.2|          2.2|           4.5|          1.5| versicolor |
-|           5.6|          2.5|           3.9|          1.1| versicolor |
-|           5.9|          3.2|           4.8|          1.8| versicolor |
-|           6.1|          2.8|           4.0|          1.3| versicolor |
-|           6.3|          2.5|           4.9|          1.5| versicolor |
-|           6.1|          2.8|           4.7|          1.2| versicolor |
-|           6.4|          2.9|           4.3|          1.3| versicolor |
-|           6.6|          3.0|           4.4|          1.4| versicolor |
-|           6.8|          2.8|           4.8|          1.4| versicolor |
-|           6.7|          3.0|           5.0|          1.7| versicolor |
-|           6.0|          2.9|           4.5|          1.5| versicolor |
-|           5.7|          2.6|           3.5|          1.0| versicolor |
-|           5.5|          2.4|           3.8|          1.1| versicolor |
-|           5.5|          2.4|           3.7|          1.0| versicolor |
-|           5.8|          2.7|           3.9|          1.2| versicolor |
-|           6.0|          2.7|           5.1|          1.6| versicolor |
-|           5.4|          3.0|           4.5|          1.5| versicolor |
-|           6.0|          3.4|           4.5|          1.6| versicolor |
-|           6.7|          3.1|           4.7|          1.5| versicolor |
-|           6.3|          2.3|           4.4|          1.3| versicolor |
-|           5.6|          3.0|           4.1|          1.3| versicolor |
-|           5.5|          2.5|           4.0|          1.3| versicolor |
-|           5.5|          2.6|           4.4|          1.2| versicolor |
-|           6.1|          3.0|           4.6|          1.4| versicolor |
-|           5.8|          2.6|           4.0|          1.2| versicolor |
-|           5.0|          2.3|           3.3|          1.0| versicolor |
-|           5.6|          2.7|           4.2|          1.3| versicolor |
-|           5.7|          3.0|           4.2|          1.2| versicolor |
-|           5.7|          2.9|           4.2|          1.3| versicolor |
-|           6.2|          2.9|           4.3|          1.3| versicolor |
-|           5.1|          2.5|           3.0|          1.1| versicolor |
-|           5.7|          2.8|           4.1|          1.3| versicolor |
-|           6.3|          3.3|           6.0|          2.5| virginica  |
-|           5.8|          2.7|           5.1|          1.9| virginica  |
-|           7.1|          3.0|           5.9|          2.1| virginica  |
-|           6.3|          2.9|           5.6|          1.8| virginica  |
-|           6.5|          3.0|           5.8|          2.2| virginica  |
-|           7.6|          3.0|           6.6|          2.1| virginica  |
-|           4.9|          2.5|           4.5|          1.7| virginica  |
-|           7.3|          2.9|           6.3|          1.8| virginica  |
-|           6.7|          2.5|           5.8|          1.8| virginica  |
-|           7.2|          3.6|           6.1|          2.5| virginica  |
-|           6.5|          3.2|           5.1|          2.0| virginica  |
-|           6.4|          2.7|           5.3|          1.9| virginica  |
-|           6.8|          3.0|           5.5|          2.1| virginica  |
-|           5.7|          2.5|           5.0|          2.0| virginica  |
-|           5.8|          2.8|           5.1|          2.4| virginica  |
-|           6.4|          3.2|           5.3|          2.3| virginica  |
-|           6.5|          3.0|           5.5|          1.8| virginica  |
-|           7.7|          3.8|           6.7|          2.2| virginica  |
-|           7.7|          2.6|           6.9|          2.3| virginica  |
-|           6.0|          2.2|           5.0|          1.5| virginica  |
-|           6.9|          3.2|           5.7|          2.3| virginica  |
-|           5.6|          2.8|           4.9|          2.0| virginica  |
-|           7.7|          2.8|           6.7|          2.0| virginica  |
-|           6.3|          2.7|           4.9|          1.8| virginica  |
-|           6.7|          3.3|           5.7|          2.1| virginica  |
-|           7.2|          3.2|           6.0|          1.8| virginica  |
-|           6.2|          2.8|           4.8|          1.8| virginica  |
-|           6.1|          3.0|           4.9|          1.8| virginica  |
-|           6.4|          2.8|           5.6|          2.1| virginica  |
-|           7.2|          3.0|           5.8|          1.6| virginica  |
-|           7.4|          2.8|           6.1|          1.9| virginica  |
-|           7.9|          3.8|           6.4|          2.0| virginica  |
-|           6.4|          2.8|           5.6|          2.2| virginica  |
-|           6.3|          2.8|           5.1|          1.5| virginica  |
-|           6.1|          2.6|           5.6|          1.4| virginica  |
-|           7.7|          3.0|           6.1|          2.3| virginica  |
-|           6.3|          3.4|           5.6|          2.4| virginica  |
-|           6.4|          3.1|           5.5|          1.8| virginica  |
-|           6.0|          3.0|           4.8|          1.8| virginica  |
-|           6.9|          3.1|           5.4|          2.1| virginica  |
-|           6.7|          3.1|           5.6|          2.4| virginica  |
-|           6.9|          3.1|           5.1|          2.3| virginica  |
-|           5.8|          2.7|           5.1|          1.9| virginica  |
-|           6.8|          3.2|           5.9|          2.3| virginica  |
-|           6.7|          3.3|           5.7|          2.5| virginica  |
-|           6.7|          3.0|           5.2|          2.3| virginica  |
-|           6.3|          2.5|           5.0|          1.9| virginica  |
-|           6.5|          3.0|           5.2|          2.0| virginica  |
-|           6.2|          3.4|           5.4|          2.3| virginica  |
-|           5.9|          3.0|           5.1|          1.8| virginica  |
+| title                                                            | pushNum | author       |
+|:-----------------------------------------------------------------|:--------|:-------------|
+| \[情報\] 2017 北美4~6月上映電影列表                              | 15      | ooic         |
+| \[好雷\] 我和我的冠軍女兒-以父威對抗體制                         | 7       | nosweating   |
+| \[多部雷\]那些有血有肉的超級英雄們                               | 11      | LIPOYI       |
+| \[選片\] 攻殼機動隊VS美女與野獸                                  | 24      | a85405       |
+| \[問片\] 好朋友相約結婚                                          | 3       | purist       |
+| Re: \[情報\]越南景甜破尺度主演【嚇女的誘惑】HD高畫質中文電影預告 |         | andey        |
+| (本文已被刪除) <t4937054>                                        | 3       | -            |
+| \[普雷\]一路順風－天亮了，我們繼續走。                           | 1       | guangpiano   |
+| (本文已被刪除) <t4937054>                                        |         | -            |
+| \[負雷\] 攻殼機動隊                                              | 5       | arrakis      |
+| \[討論\] (Cinefix)十大不靠對話的電影                             | 6       | peter220     |
+| \[請益\] 笑到流淚的戲劇                                          | 45      | chan520cc    |
+| \[討論\] 浩劫重生 查克被救起來的過程?                            | 14      | Rajon        |
+| \[負雷\] 金剛戰士中二重開機版...                                 | 2       | uus          |
+| Re: \[討論\] 景甜真的很雷嗎？                                    | 5       | shinbird     |
+| \[影評\] 聞天祥評 / 黑色追緝令                                   | 8       | MyAll        |
+| Re: \[好雷\] 目擊者的疑問與想法                                  |         | arrakis      |
+| (本文已被刪除) \[a80568911\]                                     |         | -            |
+| (本文已被刪除) \[a80568911\]                                     |         | -            |
+| \[討論\] 皮克斯《可可夜總會》(Coco) 狗狗午餐短篇                 | 1       | SKnight      |
+| \[好雷\] 最後一頁，最恐怖－目擊者                                | 3       | ueiwei       |
+| \[請益\] 自己一個人適合看這片嗎QQ?                               |         | NiNiHOT      |
+| \[好雷\] 白雪公主殺人事件                                        | 16      | kurama1984   |
+| \[新聞\] 好消息！以後電影上映45天網路上就看得到                  | 5       | jay5566      |
+| \[討論\] marvel是不是沒                                          |         | justempty    |
+| \[情報\] 《異形：聖約》片段預告                                  | 2       | Tristan0918  |
+| \[片單\] 請推薦不限種類好看電影，我也推薦一下                    | 12      | koisppq      |
+| (本文已被刪除) \[jay5566\]                                       |         | -            |
+| \[請益\] 療養怨的小問題                                          | 3       | alista       |
+| \[輕微雷\]攻殼機動隊腦粉簡短觀影心得                             | 8       | ahhway       |
+| \[好雷\] 聲之形                                                  | 2       | nerv3890     |
+| \[討論\] 《玩命鎗火》導演欲拍攝殭屍版漫威電影！                  |         | jay5566      |
+| \[微好雷\]金剛戰士Power Rangers勾起滿滿回憶!                     | 1       | fullmetalyao |
+| Re: \[討論\] marvel是不是沒                                      | 5       | LOLI5566     |
+| \[普好雷\] 她們的顫慄故事(陸譯:女劫)-XX                          |         | LF25166234   |
+| \[討論\] 最喜歡的「西遊」電影？                                  | 16      | kiradu       |
+| \[問片\] 嬰兒殺父母的恐怖片                                      | 14      | amx2131      |
+| \[新聞\] 湯姆克魯斯5月訪台　四度來台破紀錄！                     | 39      | jay5566      |
+| \[情報\]《銀魂》真人電影片場劇照                                 | 69      | jay5566      |
+| \[普雷\] 目擊者故事好但不算好的懸疑片                            | 4       | signm        |
+| \[討論\] 景甜真的很雷嗎？                                        | 23      | jimmy9991    |
+| \[討論\] 明天我要和昨天的妳約會聖地巡禮                          | 18      | thjyrsj      |
+| \[新聞\] 北美週末:寶貝老闆稱霸, 美女野獸居次                     | 21      | lovemelissa  |
+| \[好雷\] 目擊者-流暢的國片!!(買電影票要小心!!)                   | 18      | stoneJ       |
+| \[情報\]【4/1(六) 台北單日電影票房粗估 】                        | 21      | ss30066      |
+| \[問片\] 一部俄羅斯兄弟到美國發展的電影                          | 5       | Ga1axyNote7  |
+| Re: \[新聞\] 北美週末:寶貝老闆稱霸, 美女野獸居次                 | 3       | senria       |
+| Re: \[討論\] 景甜真的很雷嗎？                                    | 2       | bill1478963  |
+| \[普雷\]目擊者                                                   | 3       | nothing188   |
+| \[普雷\]攻殼機動隊 have no ghost in the shell                    | 11      | brioche      |
+| \[ 好雷\] 寶貝老闆 出乎意料的好看！                              | 5       | TCPai        |
+| \[好雷\] 明天，我要跟昨天的妳約會                                | 2       | QoHyacinthoQ |
+| \[ 超好雷\] 目擊者 誰殺了XX                                      | 4       | lingary      |
+| \[好雷\] 攻敵必救                                                | 15      | emip         |
+| (本文已被刪除) <h2030625>                                        | 56      | -            |
+| (本文已被刪除) \[LD0123\]                                        |         | -            |
+| \[情報\]越南景甜破尺度主演【嚇女的誘惑】HD高畫質中文電影預告     | 3       | jas1123kimo  |
+| \[好雷\] 目擊者的疑問與想法                                      | 7       | green741s    |
+| \[微好雷\] 救殭清道夫                                            |         | flowgo       |
+| \[吐雷\] 不吐不快之攻殼機動隊2017                                | 14      | lordyamato   |
+| \[好雷\] 我和我的冠軍女兒 這片必看                               | 17      | stock5566    |
+| \[LIVE\] X戰警天啟Apocalypse 猩猩台手剝21:00                     | 爆      | pttnowash    |
+| \[新聞\] 周星馳太孤獨…找林允聊天                                 | 7       | jay5566      |
+| \[普好雷\] 攻殼機動隊                                            | 3       | m19871006    |
+| \[問片\] 今天狂新聞裡的電影片段                                  | 2       | archvalkyrie |
+| \[問片\] 今天出來狂新聞開計程車                                  | 9       | a4839821     |
+| \[好雷\] 單身動物園 The Lobster                                  | 35      | ownr         |
+| (本文已被刪除) \[jay5566\]                                       |         | -            |
+| \[請益\] 想請教魔女嘉莉原著和電影有差很多嗎                      | 26      | qwer04230423 |
+| \[討論\] 孫儷加盟張藝謀三國新片擔任女主角！！！                  | 34      | jay5566      |
+| \[好雷\] 目擊者-時間暫停的意義？                                 | 2       | zzz499       |
+| \[好雷\] 聲之形～無法傳達的內心吶喊                              |         | paulyear     |
+| \[片單\] 聰明縝密的犯罪者有好結果                                | 48      | NTUlosers    |
+| \[ 好雷\] 另人耳目一新的目擊者                                   | 19      | a3696786     |
+| \[討論\] 想聊聊蓋皮爾斯Guy Pearce這個演員                        | 60      | SpkSpawn     |
+| \[不算有雷的雷\] The Quiet Passion 寂靜的激情                    |         | Ruthcat      |
+| \[片單\] 無神論者被排擠的片?                                     | 6       | kyouya       |
+| \[請益\] \[有雷\] 冠軍女兒的真實故事                             | 6       | endurant     |
+| \[情報\] 《神鬼傳奇》最新預告 震撼登場                           | 67      | SKnight      |
+| \[好雷\] 冥中注定我愛你 - 黃姵嘉好漂亮                           | 5       | SuperSg      |
+| \[贈票\] 玩命關頭8 4/11特映會                                    | 4       | ck980417     |
+| \[老雷\] 《鋼琴教師》真神作也                                    | 25      | Leika        |
+| \[討論\] Angelababy                                              | 21      | kiradu       |
+| \[普無雷\] 愛有來世 The Doscovery                                | 3       | biboga       |
+| \[贈票\] 東京影展最佳影片《昨日盛開的花朵》贈票                  | 47      | pelicula     |
+| \[請益\] 請問瘋狂麥斯是cyberpunk嗎？                             | 11      | pketam       |
+| \[影展\] 4/5(三) 怪奇地下電影大賞【粉紅色水仙】                  |         | victorway    |
+| \[新聞\] 那些年我們放棄的角色！12位婉拒演知名                    | 53      | go190214     |
+| \[討論\]關於絕命鈴聲這部片                                       | 6       | gyfatz       |
+| \[好雷\] 虎父無犬女———冠軍女兒                                   | 10      | takumixnobu  |
+| Re: \[請益\] 請問瘋狂麥斯是cyberpunk嗎？                         | 98      | LOLI5566     |
+| \[好雷\] 目擊者觀後感－意義深刻的笑話(有雷)                      | 18      | freeeedoom   |
+| \[普雷\] 聲之形                                                  | 6       | kirktyler    |
+| (本文已被刪除) <huanglove>                                       |         | -            |
+| \[超好雷\] 低調的好動畫 聲之形                                   | 4       | dakkk        |
+| Re: \[討論\]關於絕命鈴聲這部片                                   |         | gyfatz       |
+| \[好雷\]《目擊者》- 兩好三壞安全上壘                             | 10      | jk10134      |
+| \[請益\] 《聲之形》一個細節求解(有電影+漫畫雷)                   | 7       | larrybear    |
+| \[新聞\] 凱文費吉談《復仇者聯盟》的沙威瑪片段                    | 8       | qn123456     |
+| \[好雷\] 當他們認真編織時-超渡煩惱                               | 1       | immad        |
+| \[普雷\] 點評《漫漫回家路》/微雷                                 |         | KACIRIE      |
+| \[普好雷\] 目擊者 好但不會看第二次                               | 20      | cappa        |
+| \[普雷\] 點評《絕境之南》：想贖罪，就留下來                      |         | KACIRIE      |
+| \[ 算好雷\] 攻殼機動隊                                           | 19      | cw56983      |
+| \[ 問片\] 眼前的壞人不是壞人                                     | 2       | a1322313     |
+| \[新聞\] 最強老爸喪妻8年「聽見她說話」　如戲人                   |         | huanglove    |
+| Re: \[討論\] 玩命關頭紅在哪                                      | 18      | Kobe2630     |
+| \[問片\] 提到校園霸凌的同志電影                                  | 16      | itwitb       |
+| 〔LIVE〕CINEMAX 太陽帝國                                         | 3       | HellKitty    |
+| \[討論\] 【安娜貝爾：造孽】中文官方預告 釋出                     | 31      | MyAll        |
+| \[請益\] 本能寺大飯店vs生日卡片                                  | 13      | baozi0329    |
+| \[普雷\] 雙生姊魅 Let Her Out                                    |         | mysmalllamb  |
+| (本文已被刪除) \[vincentgotu\]                                   |         | -            |
+| \[普雷\] 描寫生動的寶貝老闆                                      | 5       | blacktooth   |
+| \[選片\] 攻殼vs金剛vs異星智慧                                    | 37      | AE35         |
+| \[新聞\] 蘇有朋 《嫌疑人》打趴好萊塢片 一夜捲2.                  | 12      | huanglove    |
+| \[好雷\] 目擊者                                                  | 20      | innocent8675 |
+| \[普雷\]《生日卡片》，做自己人生中的主角。                       | 2       | a122239      |
+| \[好雷\] 我和我的冠軍女兒 Dangal                                 | 31      | BMay         |
+| \[普雷\] 嫌疑犯X的獻身(中國版)                                   | 14      | kmwace       |
 
 解釋爬蟲結果
 ------------
 
 ``` r
-#這是R Code Chunk
+str(pttResult[1])
 ```
 
-解釋解釋解釋解釋
+    ## 'data.frame':    120 obs. of  1 variable:
+    ##  $ title: Factor w/ 116 levels "\n\t\t\t\n\t\t\t\t(本文已被刪除) [a80568911]\n\t\t\t\n\t\t\t",..: 11 4 3 15 10 18 2 12 2 5 ...
+
+執行str(pttResult\[1\])，pttResult\[1\]用來取pttResult的第一個欄位，也就是標題 結果為:'data.frame':118 obs. of 1 variable，代表這次執行結果總共有118篇文章 (根據時間不同，文章數量可能會變動)
 
 ``` r
-#這是R Code Chunk
+maxPost<-max(table(pttResult$author,exclude="-"))
+for(m in 1:(length(table(pttResult$author)))){
+  if(((table(pttResult$author))[[m]])==maxPost)
+    print((table(pttResult$author))[m])
+}
 ```
 
-解釋解釋解釋解釋
+    ## jay5566 
+    ##       6
 
-人工結論與解釋解釋解釋解釋解釋解釋解釋
+先用table找出每個作者的貼文總數，再用max取最大值("-"代表已刪除貼文，要排除在外) 再用迴圈找貼文數和maxPost一樣的作者，並print出名字和貼文數，結果為jay5566，總共6篇貼文 (根據時間不同，結果可能會不同)
+
+經過這次的爬蟲結果得出以下結論:
+
+1.最近的新片攻殼機動隊和國片目擊者討論度很高 2."贈票"的文章推文數都很多 3.大部分都是討論好萊塢片，其他地區的電影討論度不高
